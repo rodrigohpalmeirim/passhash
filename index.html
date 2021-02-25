@@ -2,68 +2,68 @@
 
 <head>
   <title>Passhash</title>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="bulma.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-  <div class="section">
-    <div class="container" style="max-width: 15rem">
-      <div class="card">
-        <header class="card-header">
-          <p class="card-header-title">Passhash</p>
-        </header>
-        <div class="card-content">
-          <form class="content">
-            <div class=field>
-              <input id="password" class="input" type="password" placeholder="Password" autofocus>
-            </div>
-            <div class="field buttons">
-              <button onclick="hashcopy();" class="button is-primary" style="width: 100%">Hash & Copy</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
+  <h1>&ltPASSHASH/&gt</h1>
+  <form onsubmit="hashcopy();" action="javascript:void(0);">
+    <input id="password" type="password" autofocus>
+  </form>
+  <span id="visual"></span>
+  <span id="notification">COPIED TO CLIPBOARD</span>
+  <div class="scan-lines">
+    <div></div>
   </div>
 
   <script>
+    const input = document.getElementById("password");
+    const visual = document.getElementById("visual");
+    const notification = document.getElementById("notification");
+    input.onblur = input.focus;
+    input.oninput = () => visual.textContent = "#".repeat(input.value.length);
+
     const weirdchars = `!"#$%&'()*+,-./:;=?@[\\]^_\`{|}~` //30
     const capitals = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";        //26
     const noncapitals = "abcdefghijklmnopqrstuvwxyz";     //26
-  
+
     function digestMessage(message) {
       const encoder = new TextEncoder();
       const data = encoder.encode(message);
       return window.crypto.subtle.digest('SHA-256', data);
     }
-    
+
     function hashcopy() {
-      digestMessage(document.getElementById("password").value).then(digestValue => {
+      digestMessage(input.value).then(digestValue => {
         const hash = new Uint8Array(digestValue);
         var passhash = "";
-  
-        for (var i=0; i<16+hash[0]%5; i++) {
-          passhash += String.fromCharCode(hash[i]%93 + 33);
+
+        for (var i = 0; i < 16 + hash[0] % 5; i++) {
+          passhash += String.fromCharCode(hash[i] % 93 + 33);
         }
-        passhash += weirdchars[hash[i++]%30];
-        passhash += capitals[hash[i++]%26];
-        passhash += hash[i++]%10;
-        passhash += noncapitals[hash[i]%26];
-  
-        console.log(passhash);
+        passhash += weirdchars[hash[i++] % 30];
+        passhash += capitals[hash[i++] % 26];
+        passhash += hash[i++] % 10;
+        passhash += noncapitals[hash[i] % 26];
+
         navigator.clipboard.writeText(passhash);
       });
-      document.getElementById("password").value = "";
+      input.value = "";
+      visual.textContent = "";
+      notification.style.opacity = 1;
+      setTimeout(() => {notification.style.opacity = 0}, 2000);
     }
   </script>
 
-  <script src="browser-info.js"></script>
+  <!-- <script src="browser-info.js"></script>
   <script src="log-access.js"></script>
   
   <script async defer src="https://apis.google.com/js/api.js"
     onload="this.onload=function(){};handleClientLoad()"
     onreadystatechange="if (this.readyState === 'complete') this.onload()">
-  </script>
+  </script> -->
 </body>
+
 </html>
