@@ -1,0 +1,61 @@
+<html>
+
+<head>
+  <title>Passhash</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+</head>
+
+<body>
+  <h1>&ltPASSHASH/&gt</h1>
+  <form onsubmit="hashcopy();" action="javascript:void(0);">
+    <input id="password" type="password" autofocus>
+  </form>
+  <span id="visual"></span>
+  <span id="notification">COPIED TO CLIPBOARD</span>
+  <div class="scan-lines">
+    <div></div>
+  </div>
+
+  <script>
+    const input = document.getElementById("password");
+    const visual = document.getElementById("visual");
+    const notification = document.getElementById("notification");
+    input.onblur = input.focus;
+    input.oninput = () => visual.textContent = "#".repeat(input.value.length);
+
+    var blink = true;
+    setInterval(() => {
+      if (!visual.textContent || visual.textContent == "▮")
+        visual.textContent = blink ? "▮" : ""
+      blink = !blink;
+    }, 500);
+
+    const SYMBOLS   = `!"#$%&'()*+,-./:;=?@[\\]^_\`{|}~` //30
+    const UPPERCASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";      //26
+    const LOWERCASE = "abcdefghijklmnopqrstuvwxyz";      //26
+
+    async function hashcopy() {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(input.value);
+      const hash = new Uint8Array(await window.crypto.subtle.digest('SHA-256', data));
+      
+      var passhash = "";
+      for (var i = 0; i < 16 + hash[0] % 5; i++) {
+        passhash += String.fromCharCode(hash[i] % 93 + 33);
+      }
+      passhash += SYMBOLS[hash[i++] % 30] + UPPERCASE[hash[i++] % 26] + hash[i++] % 10 + LOWERCASE[hash[i] % 26];
+
+      navigator.clipboard.writeText(passhash);
+      
+      input.value = "";
+      visual.textContent = "";
+      notification.style.opacity = 1;
+      setTimeout(() => { notification.style.opacity = 0 }, 2000);
+    };
+  </script>
+</body>
+
+</html>
