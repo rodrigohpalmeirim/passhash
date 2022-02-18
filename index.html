@@ -33,6 +33,20 @@
       blink = !blink;
     }, 500);
 
+    document.onkeydown = (e) => {
+      if (e.key == "F2") {
+        window.localStorage.setItem("color", window.localStorage.getItem("color") == "green" ? "amber" : "green");
+        color();
+      };
+    };
+
+    function color() {
+      const color = window.localStorage.getItem("color")
+      document.documentElement.style.setProperty('--phosphor', color == "amber" ? '#ffcc33' : "#6fc38e");
+      document.documentElement.style.setProperty('--phosphor-bloom', color == "amber" ? '#ffcc3388' : "#6fc38e88");
+    };
+    color();
+
     const SYMBOLS   = `!"#$%&'()*+,-./:;=?@[\\]^_\`{|}~` //30
     const UPPERCASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";      //26
     const LOWERCASE = "abcdefghijklmnopqrstuvwxyz";      //26
